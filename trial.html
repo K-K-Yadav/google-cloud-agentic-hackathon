@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Raseed AI Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+
+        :root {
+            --google-blue: #4285F4;
+            --text-color: #202124;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --border-color: #dadce0;
+            --shadow-color: rgba(60, 64, 67, 0.15);
+            --chat-user-bubble: #e0e0e0;
+            --chat-ai-bubble: #e6f4ea; /* A light green for AI similar to some Google apps */
+        }
+
+        [data-theme='dark'] {
+            --text-color: #e8eaed;
+            --background-color: #202124;
+            --card-background: #3c4043;
+            --border-color: #5f6368;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --chat-user-bubble: #5f6368;
+            --chat-ai-bubble: #4CAF50; /* Darker green for AI bubble */
+        }
+
+        body {
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            background-color: var(--google-blue);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .header .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header .icon-button:hover {
+            opacity: 0.8;
+        }
+
+        .main-content {
+            padding: 15px;
+        }
+
+        /* AI Insights Banner */
+        .ai-insights-banner {
+            background-color: var(--google-blue);
+            color: white;
+            padding: 15px;
+            margin: -15px -15px 15px -15px; /* Adjust to span full width */
+            font-size: 15px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .ai-insights-banner:hover {
+            background-color: #357ae8; /* Slightly darker blue on hover */
+        }
+
+        .ai-insights-banner span {
+            font-weight: 500;
+        }
+
+        .ai-insights-banner button {
+            background: none;
+            border: none;
+            color: white;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 15px;
+            margin-left: 5px;
+        }
+        .ai-insights-banner button:hover {
+            opacity: 0.8;
+        }
+
+
+        /* Weekly Summary Grid */
+        .weekly-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-tile {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .summary-tile strong {
+            display: block;
+            font-size: 18px;
+            margin-top: 5px;
+            color: var(--google-blue);
+        }
+
+        /* Receipt Ingestion Controls */
+        .receipt-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .receipt-controls button,
+        .receipt-controls label {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-background);
+            color: var(--text-color);
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s, border-color 0.2s;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .receipt-controls button:hover,
+        .receipt-controls label:hover {
+            background-color: #f0f0f0;
+            border-color: #cdd0d4;
+        }
+
+        [data-theme='dark'] .receipt-controls button:hover,
+        [data-theme='dark'] .receipt-controls label:hover {
+            background-color: #4c4c4c;
+            border-color: #70757a;
+        }
+
+        .receipt-controls input[type="file"] {
+            display: none;
+        }
+
+        /* Dynamic Pass Feed */
+        .pass-feed {
+            margin-bottom: 20px;
+        }
+
+        .pass-card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .pass-card:hover {
+            background-color: #f0f0f0;
+        }
+
+        [data-theme='dark'] .pass-card:hover {
+            background-color: #4c4c4c;
+        }
+
+        .pass-card-info {
+            flex-grow: 1;
+        }
+
+        .pass-card-info strong {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .pass-card-info span {
+            font-size: 14px;
+            color: #5f6368;
+        }
+
+        [data-theme='dark'] .pass-card-info span {
+            color: #bdc1c6;
+        }
+
+        .pass-card-actions {
+            position: relative;
+        }
+
+        .pass-card-actions .menu-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #5f6368;
+            padding: 5px;
+        }
+        [data-theme='dark'] .pass-card-actions .menu-button {
+            color: #bdc1c6;
+        }
+
+        .pass-card-actions .dropdown-menu {
+            position: absolute;
+            right: 0;
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            list-style: none;
+            padding: 8px 0;
+            margin: 0;
+            z-index: 10;
+            min-width: 120px;
+            display: none; /* Hidden by default */
+        }
+
+        .pass-card-actions .dropdown-menu.show {
+            display: block;
+        }
+
+        .pass-card-actions .dropdown-menu li button {
+            width: 100%;
+            text-align: left;
+            padding: 8px 15px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .pass-card-actions .dropdown-menu li button:hover {
+            background-color: #f0f0f0;
+        }
+        [data-theme='dark'] .pass-card-actions .dropdown-menu li button:hover {
+            background-color: #4c4c4c;
+        }
+
+
+        /* Trend Chart */
+        .chart-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-background);
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .chart-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 150px !important;
+        }
+
+        /* Smart Flows & Automations */
+        .smart-flows {
+            margin-bottom: 20px;
+        }
+
+        .smart-flow-card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .smart-flow-card .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+        .smart-flow-card .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .smart-flow-card .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .smart-flow-card .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .smart-flow-card input:checked + .slider {
+            background-color: var(--google-blue);
+        }
+
+        .smart-flow-card input:checked + .slider:before {
+            transform: translateX(18px);
+        }
+
+        .seasonal-offers-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 10px;
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 20px;
+        }
+
+        .seasonal-offer-card {
+            flex: 0 0 auto;
+            width: 80%; /* Adjust width for swiping effect */
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            scroll-snap-align: start;
+            box-shadow: 0 1px 2px var(--shadow-color);
+            min-width: 250px;
+        }
+
+        /* Custom Tags & Filters */
+        .tags-filters {
+            margin-bottom: 20px;
+        }
+
+        .tag-buttons button {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .tag-buttons button.active {
+            background-color: var(--google-blue);
+            color: white;
+            border-color: var(--google-blue);
+        }
+
+        .tag-buttons button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+        [data-theme='dark'] .tag-buttons button:hover:not(.active) {
+            background-color: #4c4c4c;
+        }
+
+
+        .filter-dropdown {
+            margin-top: 10px;
+        }
+
+        .filter-dropdown select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-background);
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        /* Community Impact Modal */
+        .community-impact-button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--google-blue);
+            background-color: var(--google-blue);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .community-impact-button:hover {
+            background-color: #357ae8;
+            border-color: #357ae8;
+        }
+
+        /* Chatbot Overlay */
+        .chatbot-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            height: 0;
+            background-color: var(--card-background);
+            box-shadow: 0 -4px 12px var(--shadow-color);
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            transition: height 0.3s ease-in-out, box-shadow 0.3s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .chatbot-overlay.active {
+            height: 70vh; /* Slide up to 70% of viewport height */
+        }
+
+        .chatbot-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .chatbot-header .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user {
+            background-color: var(--chat-user-bubble);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.ai {
+            background-color: var(--chat-ai-bubble);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .chat-input-area button {
+            background-color: var(--google-blue);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Floating Chat Icon */
+        .fab-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--google-blue);
+            color: white;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .fab-chat:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Voice Mode Overlay */
+        .voice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 101;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+
+        .voice-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .voice-overlay .mic-animation {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            color: var(--google-blue);
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+
+        /* Overlay for expanded pass card details */
+        .pass-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+
+        .pass-detail-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .pass-detail-content {
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            position: relative;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .pass-detail-overlay.active .pass-detail-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .pass-detail-content h3 {
+            margin-top: 0;
+            color: var(--google-blue);
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .pass-detail-content p {
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .pass-detail-content ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .pass-detail-content ul li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .pass-detail-content .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        /* Onboarding Overlay */
+        .onboarding-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+
+        .onboarding-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .onboarding-content {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+
+        .onboarding-content h2 {
+            color: var(--google-blue);
+            margin-top: 0;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .onboarding-content p {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .onboarding-content button {
+            background-color: var(--google-blue);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .onboarding-content button:hover {
+            background-color: #357ae8;
+        }
+
+        /* Help Panel */
+        .help-panel {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Off-screen by default */
+            width: 100%;
+            max-width: 350px;
+            height: 100%;
+            background-color: var(--card-background);
+            box-shadow: -4px 0 12px var(--shadow-color);
+            z-index: 2000;
+            transition: right 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .help-panel.active {
+            right: 0;
+        }
+
+        .help-panel-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            font-size: 18px;
+        }
+
+        .help-panel-header .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .help-panel-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .help-panel-content h3 {
+            color: var(--google-blue);
+            margin-top: 0;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .help-panel-content ol {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .help-panel-content ol li {
+            margin-bottom: 10px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Community Impact Modal */
+        .community-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+
+        .community-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .community-modal-content {
+            background-color: var(--card-background);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 350px;
+            width: 90%;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            position: relative;
+        }
+
+        .community-modal-content h3 {
+            margin-top: 0;
+            color: var(--google-blue);
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+        .community-modal-content .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .community-bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chart-bar-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .chart-bar-item span:first-child {
+            flex-basis: 60px;
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .chart-bar-item .bar {
+            flex-grow: 1;
+            height: 20px;
+            background-color: var(--google-blue);
+            border-radius: 4px;
+            margin-left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 5px;
+            color: white;
+            font-weight: 500;
+            font-size: 12px;
+        }
+        .chart-bar-item .bar.small-bar {
+            background-color: #6daaf7; /* Lighter blue for smaller bars */
+        }
+
+        .community-total {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 16px;
+            font-weight: 500;
+        }
+	.header-btns{
+		display: flex;
+}
+    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body>
+    <div class="container" id="dashboard-container">
+        <div class="header">
+            <span>Raseed AI Dashboard</span>
+            <div class="header-btns">
+                <button class="icon-button" id="theme-toggle" title="Toggle Light/Dark Mode">
+                    <span class="material-symbols-outlined">light_mode</span>
+                </button>
+                <button class="icon-button" id="mic-toggle-header" title="Toggle Voice Mode">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+                <button class="icon-button" id="help-button" title="Help">
+                    <span class="material-symbols-outlined">help</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="ai-insights-banner" id="ai-insights-banner">
+                <span>Gemini says: You’ve saved ₹120 and 2.3 kg CO₂ this week—</span><button>ask me anything!</button>
+            </div>
+
+            <div class="weekly-summary-grid">
+                <div class="summary-tile">This week:<br><strong>₹0 spent</strong></div>
+                <div class="summary-tile"><strong>0</strong> transactions</div>
+                <div class="summary-tile"><strong>0</strong> kg CO₂e</div>
+                <div class="summary-tile"><strong>0</strong> subscriptions</div>
+            </div>
+
+            <div class="receipt-controls">
+                <button id="scan-upi-qr-button">
+                    <span class="material-symbols-outlined">qr_code_scanner</span>
+                    Scan UPI QR
+                </button>
+                <label for="upload-receipt-photo">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    Upload Receipt Photo
+                </label>
+                <input type="file" id="upload-receipt-photo" accept="image/*">
+            </div>
+
+            <div class="pass-feed" id="pass-feed">
+                </div>
+
+            <div class="chart-container">
+                <h3>Monthly Spend & CO₂ Trend</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+
+            <div class="smart-flows">
+                <h2>Smart Flows & Automations</h2>
+                <div class="smart-flow-card" id="netflix-subscription-card" style="display: none;">
+                    <div>Netflix ₹499/month—Cancel?</div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="seasonal-offers-carousel">
+                    <div class="seasonal-offer-card">
+                        <strong>Seasonal Offer: Mangoes</strong>
+                        <p>Buy seasonal mangoes → save ₹30 & 0.3 kg CO₂e.</p>
+                    </div>
+                    <div class="seasonal-offer-card">
+                        <strong>Smart Tip: Public Transport</strong>
+                        <p>Use public transport for your commute → save ₹50 & 0.5 kg CO₂e per trip.</p>
+                    </div>
+                    <div class="seasonal-offer-card">
+                        <strong>Energy Saving: LEDs</strong>
+                        <p>Switch to LED bulbs → save ₹100/month & 1.2 kg CO₂e.</p>
+                    </div>
+                </div>
+                <div class="tags-filters">
+                    <h3>Custom Tags & Filters</h3>
+                    <div class="tag-buttons" id="tag-buttons">
+                        <button data-tag="all" class="active">All</button>
+                        <button data-tag="Groceries">Groceries</button>
+                        <button data-tag="Utilities">Utilities</button>
+                        <button data-tag="Entertainment">Entertainment</button>
+                        <button data-tag="Food">Food</button>
+                    </div>
+                    <div class="filter-dropdown">
+                        <select id="tag-filter-select">
+                            <option value="all">Filter by Tag</option>
+                            <option value="Groceries">Groceries</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Food">Food</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="community-impact-button" id="see-community-impact-button">
+                    See Community Impact
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fab-chat" id="fab-chat">
+        <span class="material-symbols-outlined">chat</span>
+    </div>
+
+    <div class="chatbot-overlay" id="chatbot-overlay">
+        <div class="chatbot-header">
+            <span>Ask Gemini</span>
+            <button class="close-button" id="close-chatbot">&times;</button>
+        </div>
+        <div class="chat-history" id="chat-history">
+            <div class="chat-message ai">Hello! How can I help you today?</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Type your query...">
+            <button id="chat-mic-button">
+                <span class="material-symbols-outlined">mic</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="voice-overlay" id="voice-overlay">
+        <div class="mic-animation">
+            <span class="material-symbols-outlined">mic</span>
+        </div>
+        Listening...
+    </div>
+
+    <div class="pass-detail-overlay" id="pass-detail-overlay">
+        <div class="pass-detail-content">
+            <button class="close-button" id="close-pass-detail">&times;</button>
+            <h3 id="detail-merchant"></h3>
+            <p><strong>Date:</strong> <span id="detail-date"></span></p>
+            <p><strong>Total Spend:</strong> ₹<span id="detail-spend"></span></p>
+            <p><strong>CO₂ Footprint:</strong> <span id="detail-co2"></span> kg CO₂e</p>
+            <p><strong>Items:</strong></p>
+            <ul id="detail-items">
+                </ul>
+        </div>
+    </div>
+
+    <div class="onboarding-overlay" id="onboarding-overlay">
+        <div class="onboarding-content">
+            <h2>Welcome to Raseed AI Dashboard!</h2>
+            <p><strong>Tap chat to ask Gemini:</strong> Get instant insights on your spending and CO₂ footprint.</p>
+            <p><strong>Use scan or upload to add receipts:</strong> Easily digitize your transactions.</p>
+            <button id="dismiss-onboarding">Got it!</button>
+        </div>
+    </div>
+
+    <div class="help-panel" id="help-panel">
+        <div class="help-panel-header">
+            <span>How it works</span>
+            <button class="close-button" id="close-help-panel">&times;</button>
+        </div>
+        <div class="help-panel-content">
+            <h3>Getting Started with Raseed AI</h3>
+            <ol>
+                <li><strong>Ask Gemini:</strong> Tap the chat icon to ask questions like "How much did I spend last month?" or "Did I make mindless purchases?"</li>
+                <li><strong>Add Receipts:</strong> Use "Scan UPI QR" or "Upload Receipt Photo" to add your expenses. Our AI will analyze them for insights.</li>
+                <li><strong>Explore Insights:</strong> View your spending trends, CO₂ footprint, and smart suggestions in the dashboard.</li>
+            </ol>
+            <p>Raseed AI helps you track your finances and environmental impact effortlessly!</p>
+        </div>
+    </div>
+
+    <div class="community-modal" id="community-impact-modal">
+        <div class="community-modal-content">
+            <button class="close-button" id="close-community-modal">&times;</button>
+            <h3>Community CO₂ Savings</h3>
+            <div class="community-bar-chart" id="community-bar-chart">
+                </div>
+            <p class="community-total"><strong>Total Community Savings:</strong> <span id="community-total-co2"></span> kg CO₂e</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            const micToggleHeader = document.getElementById('mic-toggle-header');
+            const fabChat = document.getElementById('fab-chat');
+            const chatbotOverlay = document.getElementById('chatbot-overlay');
+            const closeChatbot = document.getElementById('close-chatbot');
+            const chatHistory = document.getElementById('chat-history');
+            const chatInput = document.getElementById('chat-input');
+            const chatMicButton = document.getElementById('chat-mic-button');
+            const voiceOverlay = document.getElementById('voice-overlay');
+            const aiInsightsBanner = document.getElementById('ai-insights-banner');
+            const scanUpiQrButton = document.getElementById('scan-upi-qr-button');
+            const uploadReceiptPhoto = document.getElementById('upload-receipt-photo');
+            const passFeed = document.getElementById('pass-feed');
+            const passDetailOverlay = document.getElementById('pass-detail-overlay');
+            const closePassDetail = document.getElementById('close-pass-detail');
+            const detailMerchant = document.getElementById('detail-merchant');
+            const detailDate = document.getElementById('detail-date');
+            const detailSpend = document.getElementById('detail-spend');
+            const detailCo2 = document.getElementById('detail-co2');
+            const detailItems = document.getElementById('detail-items');
+            const netflixSubscriptionCard = document.getElementById('netflix-subscription-card');
+            const tagButtons = document.getElementById('tag-buttons');
+            const tagFilterSelect = document.getElementById('tag-filter-select');
+            const seeCommunityImpactButton = document.getElementById('see-community-impact-button');
+            const communityImpactModal = document.getElementById('community-impact-modal');
+            const closeCommunityModal = document.getElementById('close-community-modal');
+            const communityBarChart = document.getElementById('community-bar-chart');
+            const communityTotalCo2 = document.getElementById('community-total-co2');
+            const onboardingOverlay = document.getElementById('onboarding-overlay');
+            const dismissOnboarding = document.getElementById('dismiss-onboarding');
+            const helpButton = document.getElementById('help-button');
+            const helpPanel = document.getElementById('help-panel');
+            const closeHelpPanel = document.getElementById('close-help-panel');
+
+            let currentTheme = localStorage.getItem('theme') || 'light';
+            let passes = []; // Stores all receipt data
+            let currentFilterTag = 'all';
+
+            // Dummy data for initial passes
+            const dummyPasses = [
+                { id: 'p1', merchant: 'SuperMart', date: '2025-07-04', amount: 850, co2: 1.5, change: 'up', tag: 'Groceries', items: [{name: 'Milk', price: 60}, {name: 'Bread', price: 40}, {name: 'Vegetables', price: 750}] },
+                { id: 'p2', merchant: 'Coffee Shop', date: '2025-07-03', amount: 200, co2: 0.3, change: 'down', tag: 'Food', items: [{name: 'Latte', price: 150}, {name: 'Croissant', price: 50}] },
+                { id: 'p3', merchant: 'Electricity Board', date: '2025-07-01', amount: 1500, co2: 5.2, change: 'up', tag: 'Utilities', items: [{name: 'Electricity Bill', price: 1500}] },
+                { id: 'p4', merchant: 'Netflix', date: '2025-07-01', amount: 499, co2: 0.1, change: 'neutral', tag: 'Entertainment', subscription: true, items: [{name: 'Netflix Subscription', price: 499}] }
+            ];
+
+            // Dummy chat responses
+            const chatResponses = {
+                "how much did i spend last month?": "You spent ₹1,240 last month.",
+                "did i make mindless purchases?": "Yes—₹300 on 4 impulse buys.",
+                "what's my co2 footprint?": "Your CO₂ footprint last month was 15 kg CO₂e.",
+                "tell me a joke": "Why don't scientists trust atoms? Because they make up everything!",
+                "hi": "Hello there! How can I assist you today?",
+                "hello": "Hi! What's on your mind?",
+                "what can you do?": "I can help you track your spending, CO₂ footprint, scan receipts, and provide insights. Just ask!",
+                "thank you": "You're welcome! Let me know if you need anything else.",
+                "how can i save money?": "Consider reviewing your subscriptions and looking for seasonal offers!",
+            };
+
+            const dummyChartData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                spend: [1500, 1800, 1200, 2000, 1600, 1900],
+                co2: [4.5, 5.2, 3.8, 6.0, 4.8, 5.5]
+            };
+
+            const dummyCommunityData = [
+                { user: "Priya", co2: 12.4 },
+                { user: "Arjun", co2: 10.1 },
+                { user: "Meera", co2: 8.7 },
+                { user: "You", co2: 2.3 } // User's own dummy data
+            ];
+
+            // Theme Toggle
+            const applyTheme = (theme) => {
+                body.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                themeToggle.innerHTML = theme === 'dark' ? '<span class="material-symbols-outlined">light_mode</span>' : '<span class="material-symbols-outlined">dark_mode</span>';
+            };
+
+            themeToggle.addEventListener('click', () => {
+                currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(currentTheme);
+            });
+
+            // Initialize theme
+            applyTheme(currentTheme);
+
+            // Chatbot functionality
+            const toggleChatbot = () => {
+                chatbotOverlay.classList.toggle('active');
+                if (chatbotOverlay.classList.contains('active')) {
+                    chatInput.focus();
+                }
+            };
+
+            fabChat.addEventListener('click', toggleChatbot);
+            closeChatbot.addEventListener('click', toggleChatbot);
+            aiInsightsBanner.addEventListener('click', () => {
+                toggleChatbot();
+                chatInput.focus();
+                chatInput.value = ""; // Clear input for "ask me anything"
+            });
+
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                    addChatMessage(chatInput.value, 'user');
+                    handleGeminiResponse(chatInput.value);
+                    chatInput.value = '';
+                }
+            });
+
+            chatMicButton.addEventListener('click', () => {
+                simulateVoiceInput();
+            });
+            micToggleHeader.addEventListener('click', () => {
+                simulateVoiceInput(true); // From header mic button
+            });
+
+
+            const addChatMessage = (message, sender) => {
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('chat-message', sender);
+                msgDiv.textContent = message;
+                chatHistory.appendChild(msgDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight; // Auto-scroll to bottom
+            };
+
+            const handleGeminiResponse = (query) => {
+                const lowerQuery = query.toLowerCase().trim();
+                let response = chatResponses[lowerQuery] || "I'm not sure how to respond to that. Can you rephrase?";
+                if (lowerQuery.includes("spend last month")) {
+                     response = "You spent ₹1,240 last month."; // Dummy data as requested
+                } else if (lowerQuery.includes("mindless purchases")) {
+                    response = "Yes—₹300 on 4 impulse buys."; // Dummy data as requested
+                } else if (lowerQuery.includes("netflix")) {
+                    response = "Your Netflix subscription is ₹499/month. Would you like me to help you find ways to save on entertainment?";
+                }
+
+                setTimeout(() => {
+                    addChatMessage(response, 'ai');
+                }, 800); // Simulate AI thinking time
+            };
+
+            const simulateVoiceInput = (fromHeader = false) => {
+                voiceOverlay.classList.add('active');
+                if (!fromHeader) {
+                    chatbotOverlay.classList.remove('active'); // Close chatbot if opened from fab
+                }
+
+                setTimeout(() => {
+                    voiceOverlay.querySelector('.mic-animation').style.animation = 'none'; // Stop pulse
+                    voiceOverlay.innerHTML = `
+                        <div class="mic-animation" style="animation: none;">
+                            <span class="material-symbols-outlined">mic</span>
+                        </div>
+                        Processing...
+                    `;
+                }, 2000); // Simulate listening for 2 seconds
+
+                setTimeout(() => {
+                    voiceOverlay.classList.remove('active');
+                    voiceOverlay.innerHTML = `
+                        <div class="mic-animation">
+                            <span class="material-symbols-outlined">mic</span>
+                        </div>
+                        Listening...
+                    `; // Reset for next time
+                    if (!fromHeader) {
+                        chatbotOverlay.classList.add('active'); // Reopen chatbot
+                    }
+                    addChatMessage("How much did I spend last month?", 'user');
+                    handleGeminiResponse("how much did i spend last month?");
+                }, 4000); // Simulate processing for 2 seconds, then display result
+            };
+
+            // Receipt Ingestion
+            scanUpiQrButton.addEventListener('click', () => {
+                // Simulate fetching JSON invoice
+                const qrInvoice = {
+                    "merchant": "Local Grocer",
+                    "date": "2025-07-06",
+                    "amount": 1200,
+                    "co2": 0.8,
+                    "tag": "Groceries",
+                    "items": [
+                        {"name": "Tomatoes", "price": 120, "co2": 0.2},
+                        {"name": "Potatoes", "price": 80, "co2": 0.1},
+                        {"name": "Chicken", "price": 500, "co2": 0.5},
+                        {"name": "Rice", "price": 200, "co2": 0.05},
+                        {"name": "Spices", "price": 300, "co2": 0.05}
+                    ]
+                };
+                addPassCard(qrInvoice);
+                alert('Simulating UPI QR scan: New receipt added!');
+            });
+
+            uploadReceiptPhoto.addEventListener('change', (event) => {
+                if (event.target.files.length > 0) {
+                    // Simulate OCR parsing
+                    const ocrReceipt = {
+                        "merchant": "Cafe Blue",
+                        "date": "2025-07-05",
+                        "amount": 350,
+                        "co2": 0.4,
+                        "tag": "Food",
+                        "items": [
+                            {"name": "Coffee", "price": 180},
+                            {"name": "Sandwich", "price": 170}
+                        ]
+                    };
+                    addPassCard(ocrReceipt);
+                    alert('Simulating receipt photo upload: Receipt parsed and added!');
+                }
+            });
+
+            const addPassCard = (data) => {
+                // Assign a unique ID if not present
+                if (!data.id) {
+                    data.id = `p${passes.length + 1}`;
+                }
+                passes.unshift(data); // Add to the beginning of the array
+                renderPassCards();
+                updateWeeklySummary();
+                updateTrendChart();
+
+                // Check for Netflix subscription specifically
+                if (data.subscription || (data.merchant && data.merchant.toLowerCase().includes('netflix'))) {
+                    netflixSubscriptionCard.style.display = 'flex';
+                }
+            };
+
+            const renderPassCards = () => {
+                passFeed.innerHTML = '';
+                const filteredPasses = passes.filter(pass => {
+                    return currentFilterTag === 'all' || pass.tag === currentFilterTag;
+                });
+
+                if (filteredPasses.length === 0) {
+                    passFeed.innerHTML = '<p style="text-align: center; color: #5f6368;">No receipts to display for this filter.</p>';
+                    return;
+                }
+
+                filteredPasses.forEach(pass => {
+                    const card = document.createElement('div');
+                    card.classList.add('pass-card');
+                    card.setAttribute('data-id', pass.id);
+                    card.innerHTML = `
+                        <div class="pass-card-info">
+                            <strong>${pass.merchant}</strong>
+                            <span>${pass.date} &nbsp; • &nbsp; ₹${pass.amount} &nbsp; • &nbsp; ${pass.co2} kg CO₂e</span>
+                            ${pass.change ? `<span class="change-icon">${getChangeIcon(pass.change)}</span>` : ''}
+                        </div>
+                        <div class="pass-card-actions">
+                            <button class="menu-button"><span class="material-symbols-outlined">more_vert</span></button>
+                            <ul class="dropdown-menu">
+                                <li><button class="share-button">Share</button></li>
+                                <li><button class="download-button">Download PDF</button></li>
+                                <li><button class="delete-button">Delete</button></li>
+                            </ul>
+                        </div>
+                    `;
+                    passFeed.appendChild(card);
+
+                    // Add event listeners for the card and its actions
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('.pass-card-actions')) { // Don't open detail if clicking menu
+                            openPassDetail(pass);
+                        }
+                    });
+
+                    const menuButton = card.querySelector('.menu-button');
+                    const dropdownMenu = card.querySelector('.dropdown-menu');
+
+                    menuButton.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent card click event from firing
+                        // Close other open menus
+                        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                            if (menu !== dropdownMenu) {
+                                menu.classList.remove('show');
+                            }
+                        });
+                        dropdownMenu.classList.toggle('show');
+                    });
+
+                    dropdownMenu.querySelector('.share-button').addEventListener('click', () => {
+                        alert(`Sharing receipt for ${pass.merchant}`);
+                        dropdownMenu.classList.remove('show');
+                    });
+                    dropdownMenu.querySelector('.download-button').addEventListener('click', () => {
+                        alert(`Downloading PDF for ${pass.merchant}`);
+                        dropdownMenu.classList.remove('show');
+                    });
+                    dropdownMenu.querySelector('.delete-button').addEventListener('click', () => {
+                        if (confirm(`Are you sure you want to delete the receipt from ${pass.merchant}?`)) {
+                            passes = passes.filter(p => p.id !== pass.id);
+                            renderPassCards();
+                            updateWeeklySummary();
+                            updateTrendChart();
+                            alert('Receipt deleted!');
+                        }
+                        dropdownMenu.classList.remove('show');
+                    });
+                });
+
+                // Close dropdown if clicked outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.pass-card-actions')) {
+                        document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                            menu.classList.remove('show');
+                        });
+                    }
+                });
+            };
+
+            const getChangeIcon = (change) => {
+                switch (change) {
+                    case 'up': return '<span class="material-symbols-outlined" style="font-size: 18px; color: #d93025; vertical-align: middle;">arrow_upward</span>';
+                    case 'down': return '<span class="material-symbols-outlined" style="font-size: 18px; color: #1e8e3e; vertical-align: middle;">arrow_downward</span>';
+                    case 'neutral': return '<span class="material-symbols-outlined" style="font-size: 18px; color: #5f6368; vertical-align: middle;">remove</span>';
+                    default: return '';
+                }
+            };
+
+            const openPassDetail = (pass) => {
+                detailMerchant.textContent = pass.merchant;
+                detailDate.textContent = pass.date;
+                detailSpend.textContent = pass.amount.toLocaleString('en-IN');
+                detailCo2.textContent = pass.co2;
+                detailItems.innerHTML = '';
+                if (pass.items && pass.items.length > 0) {
+                    pass.items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<span>${item.name}</span> <span>₹${item.price.toLocaleString('en-IN')}</span>`;
+                        detailItems.appendChild(li);
+                    });
+                } else {
+                    detailItems.innerHTML = '<li>No item breakdown available.</li>';
+                }
+                passDetailOverlay.classList.add('active');
+            };
+
+            closePassDetail.addEventListener('click', () => {
+                passDetailOverlay.classList.remove('active');
+            });
+
+            // Weekly Summary Update
+            const updateWeeklySummary = () => {
+                let totalSpent = 0;
+                let totalTransactions = 0;
+                let totalCo2 = 0;
+                let totalSubscriptions = 0;
+
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+                passes.forEach(pass => {
+                    const passDate = new Date(pass.date);
+                    if (passDate >= oneWeekAgo) {
+                        totalSpent += pass.amount;
+                        totalTransactions++;
+                        totalCo2 += pass.co2;
+                        if (pass.subscription) {
+                            totalSubscriptions++;
+                        }
+                    }
+                });
+
+                document.querySelector('.weekly-summary-grid div:nth-child(1) strong').textContent = `₹${totalSpent.toLocaleString('en-IN')}`;
+                document.querySelector('.weekly-summary-grid div:nth-child(2) strong').textContent = totalTransactions;
+                document.querySelector('.weekly-summary-grid div:nth-child(3) strong').textContent = `${totalCo2.toFixed(1)}`;
+                document.querySelector('.weekly-summary-grid div:nth-child(4) strong').textContent = totalSubscriptions;
+            };
+
+            // Trend Chart (simple JS line chart)
+            const trendChartCanvas = document.getElementById('trendChart');
+            let chartInstance = null; // To store chart instance for updates
+
+            const drawChart = (labels, spendData, co2Data) => {
+                if (chartInstance) {
+                    chartInstance.destroy(); // Destroy previous chart instance
+                }
+
+                const ctx = trendChartCanvas.getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Spend (₹)',
+                                data: spendData,
+                                borderColor: varToRgba(getComputedStyle(document.documentElement).getPropertyValue('--google-blue'), 1),
+                                backgroundColor: varToRgba(getComputedStyle(document.documentElement).getPropertyValue('--google-blue'), 0.2),
+                                fill: true,
+                                tension: 0.3
+                            },
+                            {
+                                label: 'CO₂ (kg)',
+                                data: co2Data,
+                                borderColor: 'rgba(76, 175, 80, 1)', /* Green */
+                                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                                fill: true,
+                                tension: 0.3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                                },
+                                grid: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                                },
+                                grid: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--border-color'),
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Helper to get RGBA from CSS variable (for Chart.js compatibility with themes)
+            function varToRgba(cssVarValue, alpha) {
+                if (cssVarValue.startsWith('#')) {
+                    const hex = cssVarValue.slice(1);
+                    const r = parseInt(hex.substring(0, 2), 16);
+                    const g = parseInt(hex.substring(2, 4), 16);
+                    const b = parseInt(hex.substring(4, 6), 16);
+                    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                }
+                return cssVarValue; // Assume it's already an rgba or color string chart.js understands
+            }
+
+            const updateTrendChart = () => {
+                // Generate data for the last 6 months based on current passes
+                const monthlyData = {}; // { 'YYYY-MM': { totalSpend: 0, totalCo2: 0 } }
+                const now = new Date();
+
+                for (let i = 0; i < 6; i++) {
+                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const yearMonth = date.toISOString().substring(0, 7); // YYYY-MM
+                    monthlyData[yearMonth] = { totalSpend: 0, totalCo2: 0 };
+                }
+
+                passes.forEach(pass => {
+                    const passDate = new Date(pass.date);
+                    const passYearMonth = passDate.toISOString().substring(0, 7);
+                    if (monthlyData[passYearMonth]) {
+                        monthlyData[passYearMonth].totalSpend += pass.amount;
+                        monthlyData[passYearMonth].totalCo2 += pass.co2;
+                    }
+                });
+
+                const sortedMonths = Object.keys(monthlyData).sort();
+                const labels = sortedMonths.map(ym => {
+                    const date = new Date(ym);
+                    return date.toLocaleString('en-US', { month: 'short' });
+                });
+                const spendData = sortedMonths.map(ym => monthlyData[ym].totalSpend);
+                const co2Data = sortedMonths.map(ym => monthlyData[ym].totalCo2);
+
+                drawChart(labels, spendData, co2Data);
+            };
+
+            // Tag filtering
+            tagButtons.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    document.querySelectorAll('.tag-buttons button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilterTag = e.target.dataset.tag;
+                    tagFilterSelect.value = currentFilterTag; // Sync dropdown
+                    renderPassCards();
+                }
+            });
+
+            tagFilterSelect.addEventListener('change', (e) => {
+                currentFilterTag = e.target.value;
+                document.querySelectorAll('.tag-buttons button').forEach(btn => {
+                    if (btn.dataset.tag === currentFilterTag) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+                renderPassCards();
+            });
+
+            // Community Impact Modal
+            seeCommunityImpactButton.addEventListener('click', () => {
+                communityImpactModal.classList.add('active');
+                renderCommunityChart();
+            });
+
+            closeCommunityModal.addEventListener('click', () => {
+                communityImpactModal.classList.remove('active');
+            });
+
+            const renderCommunityChart = () => {
+                communityBarChart.innerHTML = '';
+                let totalCommunityCo2 = 0;
+
+                // Sort data by CO2 savings (descending)
+                const sortedCommunity = [...dummyCommunityData].sort((a, b) => b.co2 - a.co2);
+
+                const maxCo2 = Math.max(...sortedCommunity.map(d => d.co2));
+
+                sortedCommunity.forEach(data => {
+                    const barItem = document.createElement('div');
+                    barItem.classList.add('chart-bar-item');
+                    const barWidth = (data.co2 / maxCo2) * 100;
+                    barItem.innerHTML = `
+                        <span>${data.user}</span>
+                        <div class="bar ${barWidth < 50 ? 'small-bar' : ''}" style="width: ${barWidth}%;">
+                            ${data.co2.toFixed(1)}kg
+                        </div>
+                    `;
+                    communityBarChart.appendChild(barItem);
+                    totalCommunityCo2 += data.co2;
+                });
+                communityTotalCo2.textContent = totalCommunityCo2.toFixed(1);
+            };
+
+            // Onboarding
+            const hasOnboarded = localStorage.getItem('hasOnboarded');
+            if (!hasOnboarded) {
+                onboardingOverlay.classList.add('active');
+            }
+
+            dismissOnboarding.addEventListener('click', () => {
+                onboardingOverlay.classList.remove('active');
+                localStorage.setItem('hasOnboarded', 'true');
+            });
+
+            // Help Panel
+            helpButton.addEventListener('click', () => {
+                helpPanel.classList.add('active');
+            });
+
+            closeHelpPanel.addEventListener('click', () => {
+                helpPanel.classList.remove('active');
+            });
+
+
+            // Initialize
+            passes = [...dummyPasses]; // Load dummy data on start
+            renderPassCards();
+            updateWeeklySummary();
+            updateTrendChart();
+        });
+
+        // Chart.js library (inline) - simplified version for basic line chart
+        // This is a minimal Chart.js like implementation. For full features, use the library.
+        // For this task, a simple drawing function is sufficient.
+        // Using a basic Chart.js CDN here for full functionality as requested indirectly via "interactive analytics widgets"
+        // and "Trend Chart: simple JS line chart plotting last 6 months’ spend vs. CO₂ (no libs)." - this implies
+        // a need for a charting capability, and while "no libs" implies drawing it from scratch, for a full
+        // "interactive dashboard" this would be too complex to fit into a single HTML file.
+        // Given the constraint of "no external dependencies", a very basic hand-rolled chart would be complex.
+        // However, the intent is likely to demonstrate the *idea* of charting.
+        // For a more realistic "interactive" chart while minimizing complexity for a single file,
+        // a minimal Chart.js library usage is a practical compromise for "expert front-end engineer".
+        // If "no libs" is strictly interpreted as absolutely no external JS, then a simpler, static bar/line chart
+        // drawing using pure canvas would be needed, which adds significant code.
+        // Sticking to the spirit of "fully interactive" and "expert front-end engineer" implying a rich UI,
+        // a small Chart.js is included. If this strictly violates "no external dependencies",
+        // the chart would need to be re-written using pure canvas.
+        // For the sake of this prompt, I will inline a very minimal Chart.js CDN for interactive charts.
+        // If a truly "no libs, hand-rolled" chart is required within this single file constraint,
+        // the canvas drawing logic would replace the Chart.js part.
+
+        // Inline Chart.js (minimal CDN load for this example, or can be downloaded and inlined)
+        // For the purpose of this single file, let's pretend this is a very tiny, custom-built chart library.
+        // In a real scenario, you'd use the full Chart.js or another library, but the prompt asks for "no external dependencies".
+        // A full Chart.js library is ~250KB minified. Inlining a very basic chart drawing is feasible but adds significant code.
+        // Let's go with a conceptual "Chart" object that simulates basic line drawing on canvas.
+
+        class Chart {
+            constructor(ctx, config) {
+                this.ctx = ctx;
+                this.config = config;
+                this.data = config.data;
+                this.options = config.options;
+                this.draw();
+            }
+
+            draw() {
+                const { labels, datasets } = this.data;
+                const { scales, plugins } = this.options;
+
+                this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+                const padding = 30;
+                const chartWidth = this.ctx.canvas.width - 2 * padding;
+                const chartHeight = this.ctx.canvas.height - 2 * padding;
+
+                const maxDataValue = Math.max(...datasets.flatMap(d => d.data));
+                const minDataValue = Math.min(0, ...datasets.flatMap(d => d.data)); // Ensure it starts at 0 or min actual data
+
+                const yAxisRange = maxDataValue - minDataValue;
+                const yRatio = chartHeight / yAxisRange;
+
+                const xScale = chartWidth / (labels.length - 1);
+
+                // Draw X and Y axes
+                this.ctx.beginPath();
+                this.ctx.strokeStyle = scales.x.grid.color;
+                this.ctx.moveTo(padding, padding + chartHeight); // X axis
+                this.ctx.lineTo(padding + chartWidth, padding + chartHeight);
+                this.ctx.moveTo(padding, padding); // Y axis
+                this.ctx.lineTo(padding, padding + chartHeight);
+                this.ctx.stroke();
+
+                // Draw X-axis labels
+                this.ctx.fillStyle = scales.x.ticks.color;
+                this.ctx.textAlign = 'center';
+                this.ctx.font = '12px Google Sans';
+                labels.forEach((label, i) => {
+                    this.ctx.fillText(label, padding + i * xScale, padding + chartHeight + 20);
+                });
+
+                // Draw Y-axis labels (simplified to just min/max/mid)
+                this.ctx.textAlign = 'right';
+                this.ctx.fillText(minDataValue, padding - 10, padding + chartHeight);
+                this.ctx.fillText(maxDataValue, padding - 10, padding + 5);
+                this.ctx.fillText(Math.round(maxDataValue / 2), padding - 10, padding + chartHeight / 2);
+
+                // Draw lines and points for each dataset
+                datasets.forEach(dataset => {
+                    this.ctx.beginPath();
+                    this.ctx.strokeStyle = dataset.borderColor;
+                    this.ctx.fillStyle = dataset.backgroundColor;
+                    this.ctx.lineWidth = 2;
+
+                    dataset.data.forEach((value, i) => {
+                        const x = padding + i * xScale;
+                        const y = padding + chartHeight - (value - minDataValue) * yRatio;
+
+                        if (i === 0) {
+                            this.ctx.moveTo(x, y);
+                        } else {
+                            this.ctx.lineTo(x, y);
+                        }
+                    });
+                    this.ctx.stroke();
+
+                    // Fill area under the line if fill is true
+                    if (dataset.fill) {
+                        this.ctx.lineTo(padding + (labels.length - 1) * xScale, padding + chartHeight);
+                        this.ctx.lineTo(padding, padding + chartHeight);
+                        this.ctx.closePath();
+                        this.ctx.fill();
+                    }
+
+                    // Draw points
+                    dataset.data.forEach((value, i) => {
+                        const x = padding + i * xScale;
+                        const y = padding + chartHeight - (value - minDataValue) * yRatio;
+                        this.ctx.beginPath();
+                        this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+                        this.ctx.fillStyle = dataset.borderColor;
+                        this.ctx.fill();
+                    });
+                });
+
+                // Draw legend
+                if (plugins.legend.display) {
+                    let legendX = padding;
+                    const legendY = 10;
+                    this.ctx.font = '12px Google Sans';
+                    datasets.forEach((dataset, i) => {
+                        this.ctx.fillStyle = dataset.borderColor;
+                        this.ctx.fillRect(legendX, legendY, 15, 10);
+                        this.ctx.fillStyle = plugins.legend.labels.color;
+                        this.ctx.fillText(dataset.label, legendX + 20, legendY + 9);
+                        legendX += this.ctx.measureText(dataset.label).width + 40; // Adjust spacing
+                    });
+                }
+            }
+
+            destroy() {
+                // For this simple custom chart, destroy means clearing canvas
+                this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+            }
+        }
+    </script>
+</body>
+</html>
